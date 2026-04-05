@@ -1,0 +1,13 @@
+services:
+  image-studio-api:
+    build: .
+    container_name: image-studio-api
+    ports:
+      - "8000:8000"
+    environment:
+      APP_DATA_DIR: /app/data
+      HF_HOME: /app/data/hf-cache
+      HF_HUB_CACHE: /app/data/hf-cache/hub
+      DEFAULT_MODEL_ID: runwayml/stable-diffusion-v1-5
+    volumes:
+      - ./data:/app/data
