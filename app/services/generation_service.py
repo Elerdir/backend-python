@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime, timedelta
 import uuid
 import json
 import os
@@ -12,10 +13,12 @@ class GenerationService:
         # directories
         self.base_dir = Path(os.getenv("APP_DATA_DIR", "data"))
         self.output_dir = self.base_dir / "outputs"
+        self.inputs_dir = self.base_dir / "inputs"
         self.models_dir = self.base_dir / "models"
         self.registry_path = self.base_dir / "models.json"
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.inputs_dir.mkdir(parents=True, exist_ok=True)
         self.models_dir.mkdir(parents=True, exist_ok=True)
 
         # device
@@ -27,11 +30,59 @@ class GenerationService:
         # pipeline cache
         self._pipelines: dict[str, object] = {}
 
-        # ensure default registry
+        # ensure registry contains default model
         self._ensure_default_registry()
+
+        # cleanup old temp/generated files
+        self.cleanup_old_files()
 
         # preload default pipeline
         self.pipe = self._load_pipeline(self.default_model_id)
+
+    # --------------------------------------------------
+    # CLEANUP
+    # --------------------------------------------------
+
+    def cleanup_old_files(self, max_age_hours: int = 24) -> None:
+        cutoff = datetime.now() - timedelta(hours=max_age_hours)
+
+        directories = [
+            self.inputs_dir,
+            self.output_dir,
+        ]
+
+        for directory in directories:
+            if not directory.exists():
+                continue
+
+            for file_path in directory.rglob("*"):
+                if not file_path.is_file():
+                    continue
+
+                try:
+                    modified = datetime.fromtimestamp(file_path.stat().st_mtime)
+
+                    if modified < cutoff:
+                        file_path.unlink(missing_ok=True)
+                        print(f"[CLEANUP] Deleted old file: {file_path}")
+                except Exception as ex:
+                    print(f"[CLEANUP] Failed to delete {file_path}: {ex}")
+
+        # remove empty folders
+        for directory in directories:
+            if not directory.exists():
+                continue
+
+            for subdir in sorted(directory.rglob("*"), reverse=True):
+                if not subdir.is_dir():
+                    continue
+
+                try:
+                    if not any(subdir.iterdir()):
+                        subdir.rmdir()
+                        print(f"[CLEANUP] Deleted empty directory: {subdir}")
+                except Exception:
+                    pass
 
     # --------------------------------------------------
     # REGISTRY
@@ -151,6 +202,9 @@ class GenerationService:
         model_id: str | None = None,
         num_images: int = 1,
     ) -> list[str]:
+        # cleanup before each generation
+        self.cleanup_old_files()
+
         selected_model_id = model_id or self.default_model_id
         self.pipe = self._load_pipeline(selected_model_id)
 

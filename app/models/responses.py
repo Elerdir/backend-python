@@ -69,3 +69,26 @@ class AnalyzeAndGenerateResponse(BaseModel):
     image_paths: list[str] = []
     seed: int | None = None
     model_id: str | None = None
+
+class JobStartResponse(BaseModel):
+    job_id: str
+    status: str
+
+
+class JobStatusResponse(BaseModel):
+    job_id: str
+    status: str
+    progress: int = 0
+    message: str = ""
+    generated_filenames: list[str] = []
+    source_filename: str | None = None
+    prompt: str = ""
+    negative_prompt: str = ""
+    subject: str = ""
+    hair: str = ""
+    clothing: str = ""
+    environment: str = ""
+    style: str = ""
+    seed: int | None = None
+    model_id: str | None = None
+    error: str | None = None
