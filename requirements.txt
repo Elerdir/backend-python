@@ -3,7 +3,6 @@ uvicorn[standard]
 pydantic
 python-multipart
 transformers
-torch
 pillow
 accelerate
 sentencepiece
@@ -11,3 +10,5 @@ protobuf
 diffusers
 safetensors
 hf_xet
+langdetect
+sentencepiece

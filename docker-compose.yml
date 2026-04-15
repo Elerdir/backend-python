@@ -9,5 +9,13 @@ services:
       HF_HOME: /app/data/hf-cache
       HF_HUB_CACHE: /app/data/hf-cache/hub
       DEFAULT_MODEL_ID: runwayml/stable-diffusion-v1-5
+      APP_VERSION: 1.0.0
     volumes:
       - ./data:/app/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
