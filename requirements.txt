@@ -11,4 +11,3 @@ diffusers
 safetensors
 hf_xet
 langdetect
-sentencepiece
