@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class AnalysisResponse(BaseModel):
@@ -29,18 +29,25 @@ class PromptResponse(BaseModel):
 
 
 class GenerationRequest(BaseModel):
-    prompt: str
-    negative_prompt: str = ""
-    width: int = 1024
-    height: int = 1024
-    num_inference_steps: int = 30
-    guidance_scale: float = 7.5
-    seed: int | None = None
-    model_id: str | None = None
-    num_images: int = 1
+    prompt: str = Field(..., min_length=1, max_length=2000)
+    negative_prompt: str = Field("", max_length=2000)
+    width: int = Field(1024, ge=64, le=2048)
+    height: int = Field(1024, ge=64, le=2048)
+    num_inference_steps: int = Field(30, ge=1, le=150)
+    guidance_scale: float = Field(7.5, ge=1.0, le=30.0)
+    seed: int | None = Field(None, ge=0)
+    model_id: str | None = Field(None, max_length=200)
+    num_images: int = Field(1, ge=1, le=4)
     use_ip_adapter: bool = False
     ip_adapter_image_path: str | None = None
-    ip_adapter_scale: float = 0.6
+    ip_adapter_scale: float = Field(0.6, ge=0.0, le=1.0)
+
+    @field_validator("width", "height")
+    @classmethod
+    def must_be_multiple_of_8(cls, v: int) -> int:
+        if v % 8 != 0:
+            raise ValueError("width and height must be multiples of 8")
+        return v
 
 
 class GenerationResponse(BaseModel):
