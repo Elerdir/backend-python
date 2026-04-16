@@ -242,10 +242,18 @@ class GenerationService:
             return []
 
     def _save_registry(self, registry: list[dict]) -> None:
-        self.registry_path.write_text(
-            json.dumps(registry, indent=2),
-            encoding="utf-8"
-        )
+        # Write to a temp file first, then atomically replace the target.
+        # This prevents registry corruption if the process crashes mid-write.
+        tmp_path = self.registry_path.with_suffix(".tmp")
+        try:
+            tmp_path.write_text(
+                json.dumps(registry, indent=2),
+                encoding="utf-8"
+            )
+            tmp_path.replace(self.registry_path)
+        except Exception:
+            tmp_path.unlink(missing_ok=True)
+            raise
 
     def _ensure_default_registry(self) -> None:
         registry = self._load_registry_safe()
