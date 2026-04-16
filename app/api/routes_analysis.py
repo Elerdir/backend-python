@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from typing import List
 from pathlib import Path
@@ -11,7 +12,7 @@ router = APIRouter()
 
 analysis_service = AnalysisService()
 
-UPLOAD_DIR = Path("data/inputs")
+UPLOAD_DIR = Path(os.getenv("APP_DATA_DIR", "data")) / "inputs"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
