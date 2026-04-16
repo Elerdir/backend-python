@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
 
 WORKDIR /app
 
@@ -16,9 +16,7 @@ RUN apt-get update && apt-get install -y \
 
 COPY requirements.txt .
 
-# CUDA build PyTorch
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir torch==2.6.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 && \
     pip install --no-cache-dir -r requirements.txt
 
 COPY . .
