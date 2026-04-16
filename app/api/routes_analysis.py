@@ -3,19 +3,13 @@ from typing import List
 from pathlib import Path
 import uuid
 
-from app.models.responses import AnalysisResponse
-from app.services.analysis_service import AnalysisService
-from app.services.image_caption_service import ImageCaptionService
-from app.services.caption_parser_service import CaptionParserService
 from app.models.responses import AnalysisResponse, PromptResponse
-from app.services.prompt_builder_service import PromptBuilderService
+from app.services.analysis_service import AnalysisService
+from app.dependencies import image_caption_service, caption_parser_service, prompt_builder_service
 
 router = APIRouter()
 
 analysis_service = AnalysisService()
-image_caption_service = ImageCaptionService()
-caption_parser_service = CaptionParserService()
-prompt_builder_service = PromptBuilderService()
 
 UPLOAD_DIR = Path("data/inputs")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)

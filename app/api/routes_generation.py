@@ -16,20 +16,13 @@ from app.models.responses import (
 )
 
 from app.services.generation_service import GenerationService
-from app.services.image_caption_service import ImageCaptionService
-from app.services.caption_parser_service import CaptionParserService
-from app.services.prompt_builder_service import PromptBuilderService
 from app.services.job_service import JobService
-from app.services.translation_service import TranslationService
+from app.dependencies import image_caption_service, caption_parser_service, prompt_builder_service, translation_service
 
 router = APIRouter()
 
 generation_service = GenerationService()
-image_caption_service = ImageCaptionService()
-caption_parser_service = CaptionParserService()
-prompt_builder_service = PromptBuilderService()
 job_service = JobService()
-translation_service = TranslationService()
 
 # EXPORT shared instance
 shared_generation_service = generation_service

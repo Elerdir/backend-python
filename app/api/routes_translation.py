@@ -2,11 +2,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.models.responses import TranslationResponse
-from app.services.translation_service import TranslationService
+from app.dependencies import translation_service
 
 router = APIRouter()
-
-translation_service = TranslationService()
 
 
 class TranslationRequest(BaseModel):
