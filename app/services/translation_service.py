@@ -11,18 +11,57 @@ DetectorFactory.seed = 0
 
 
 class TranslationService:
+    """Translation service with lazy model loading.
+
+    Models are downloaded/loaded on first use, not at startup.  This allows
+    the server to start normally even when HuggingFace Hub is unreachable or
+    the model weights are not yet cached locally.
+    """
+
     def __init__(self) -> None:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         # Czech -> English
         self.cs_model_id = "Helsinki-NLP/opus-mt-cs-en"
-        self.cs_tokenizer = MarianTokenizer.from_pretrained(self.cs_model_id)
-        self.cs_model = MarianMTModel.from_pretrained(self.cs_model_id).to(self.device)
+        self._cs_tokenizer: MarianTokenizer | None = None
+        self._cs_model: MarianMTModel | None = None
 
         # Czech + Slovak -> English
         self.ces_slk_model_id = "Helsinki-NLP/opus-mt-tc-big-ces_slk-en"
-        self.ces_slk_tokenizer = MarianTokenizer.from_pretrained(self.ces_slk_model_id)
-        self.ces_slk_model = MarianMTModel.from_pretrained(self.ces_slk_model_id).to(self.device)
+        self._ces_slk_tokenizer: MarianTokenizer | None = None
+        self._ces_slk_model: MarianMTModel | None = None
+
+    # --------------------------------------------------
+    # Lazy-loaded model properties
+    # --------------------------------------------------
+
+    @property
+    def cs_tokenizer(self) -> MarianTokenizer:
+        if self._cs_tokenizer is None:
+            print(f"[TRANSLATION] Loading tokenizer: {self.cs_model_id}")
+            self._cs_tokenizer = MarianTokenizer.from_pretrained(self.cs_model_id)
+        return self._cs_tokenizer
+
+    @property
+    def cs_model(self) -> MarianMTModel:
+        if self._cs_model is None:
+            print(f"[TRANSLATION] Loading model: {self.cs_model_id}")
+            self._cs_model = MarianMTModel.from_pretrained(self.cs_model_id).to(self.device)
+        return self._cs_model
+
+    @property
+    def ces_slk_tokenizer(self) -> MarianTokenizer:
+        if self._ces_slk_tokenizer is None:
+            print(f"[TRANSLATION] Loading tokenizer: {self.ces_slk_model_id}")
+            self._ces_slk_tokenizer = MarianTokenizer.from_pretrained(self.ces_slk_model_id)
+        return self._ces_slk_tokenizer
+
+    @property
+    def ces_slk_model(self) -> MarianMTModel:
+        if self._ces_slk_model is None:
+            print(f"[TRANSLATION] Loading model: {self.ces_slk_model_id}")
+            self._ces_slk_model = MarianMTModel.from_pretrained(self.ces_slk_model_id).to(self.device)
+        return self._ces_slk_model
 
     def detect_language(self, text: str) -> str:
         cleaned = (text or "").strip()

@@ -214,6 +214,9 @@ class JobService:
                 return None
 
             result = dict(job)
+            # generated_filenames is a mutable list – copy it so callers
+            # cannot accidentally mutate the internal state.
+            result["generated_filenames"] = list(job["generated_filenames"])
 
             if job_id == self._current_job_id:
                 result["queue_position"] = 0
