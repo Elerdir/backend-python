@@ -37,7 +37,7 @@ class GenerationRequest(BaseModel):
     guidance_scale: float = Field(7.5, ge=1.0, le=30.0)
     seed: int | None = Field(None, ge=0)
     model_id: str | None = Field(None, max_length=200)
-    num_images: int = Field(1, ge=1, le=4)
+    num_images: int = Field(1, ge=1, le=16)
     use_ip_adapter: bool = False
     ip_adapter_image_path: str | None = None
     ip_adapter_scale: float = Field(0.6, ge=0.0, le=1.0)
