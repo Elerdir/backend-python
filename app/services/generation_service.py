@@ -43,7 +43,7 @@ class GenerationService:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         # default model
-        self.default_model_id = "runwayml/stable-diffusion-v1-5"
+        self.default_model_id = os.getenv("DEFAULT_MODEL_ID", "runwayml/stable-diffusion-v1-5")
 
         self.server_version = os.getenv("APP_VERSION", "1.0.0")
         self.app_name = "Image Studio Backend"

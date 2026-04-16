@@ -2,16 +2,19 @@ services:
   image-studio-api:
     build: .
     container_name: image-studio-api
+    restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
       APP_DATA_DIR: /app/data
-      HF_HOME: /app/data/hf-cache
-      HF_HUB_CACHE: /app/data/hf-cache/hub
+      HF_HOME: /app/hf-cache
+      HF_HUB_CACHE: /app/hf-cache/hub
       DEFAULT_MODEL_ID: runwayml/stable-diffusion-v1-5
       APP_VERSION: 1.0.0
     volumes:
       - ./data:/app/data
+      - hf-cache:/app/hf-cache
+    shm_size: '2gb'
     deploy:
       resources:
         reservations:
@@ -19,3 +22,6 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+
+volumes:
+  hf-cache:
